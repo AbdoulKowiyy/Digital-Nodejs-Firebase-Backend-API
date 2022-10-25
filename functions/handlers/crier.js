@@ -28,8 +28,6 @@ exports.getAllCrier = (req, res) => {
 }
 
 exports.getAllikons = (req, res) => {
-
-
     db.collection("socialkonlar")
         .get().then((data) => {
             let ikonlar = [];
@@ -48,6 +46,7 @@ exports.getAllikons = (req, res) => {
         }).catch(err => {
             console.error(err)
         })
+
 }
 
 //banka Iconlar
@@ -385,7 +384,6 @@ exports.getConatctWithoutAuth = (req, res) => {
             //console.log(crierData.commnents.push(doc.data()))
             crierData.linkUrlAll.push(doc.data());
             // console.log(crierData.push(doc.data()))
-
         })
         return res.json(crierData)
     }).catch(err => {
@@ -445,16 +443,12 @@ exports.getSocialKonsandUrl = (req, res) => {
         }).then(data => {
             crierData.linkId = data.uid;
             crierData.linkUrlAll = [];
-
-
-
             data.forEach((doc) => {
                 //console.log(crierData.commnents.push(doc.data()))
                 crierData.linkUrlAll.push(doc.data());
                 // console.log(crierData.linkUrlAll.push(linkId = doc.id))
                 crierData.linkId = crierData.linkUrlAll.push({ linkIdBurada: doc.id })
-
-                //crierData.linkUrlAll.push(data.uid)
+                    //crierData.linkUrlAll.push(data.uid)
 
             })
 
@@ -502,7 +496,6 @@ exports.getiletisimKonsandUrl = (req, res) => {
 
 
 //be able to post ocmments
-
 exports.postCommnentOnScreen = (req, res) => {
 
     if (req.body.body.trim() === "") {

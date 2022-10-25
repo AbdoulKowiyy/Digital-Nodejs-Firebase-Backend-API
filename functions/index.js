@@ -28,7 +28,6 @@ const {
     getBankaKonsandUrl,
     getSocialKonsandUrl,
     getiletisimKonsandUrl
-
 } = require("./handlers/crier")
 
 const {
@@ -65,6 +64,8 @@ const {
     contactOnlyNumber,
     iletisIconEkle
 } = require("./handlers/usersabd");
+
+
 const { db } = require("./importantsDoc/admin");
 
 const FBAuth = require("./importantsDoc/fbAuth")
@@ -77,7 +78,6 @@ app.use(cors());
 //express,
 //npm i --save busboy //to upload file
 //
-
 
 //hibricard functionları
 
@@ -126,7 +126,6 @@ app.get("/ikonbanka/:ikonId", getOneIconBanka)
 //iletisim ikon getir bri tane
 app.get("/iletisimbanka/:ikonId", getOneIconIletisim)
 
-
 //Ikon silme social media ikon sil
 app.delete("/ikon/:ikonId", FBAuth, deleteIkon)
     //bir banaka ikonu sil
@@ -159,10 +158,6 @@ app.post("/ikonbankaUrl/:urlId/postbankaUrl", FBAuth, bankaUrlEkle),
     //only number 
     app.post("/contactonlyUrl/:urlId/postcontactonlyUrl", FBAuth, contactOnlyNumber)
 
-
-
-
-
 //Kullanıcı girme işlemi
 
 //SignUp route
@@ -188,13 +183,13 @@ app.post("/kullanici/geceModu", FBAuth, GeceModuAktif);
 app.post("/kullanici/profilKapa", FBAuth, ProfileGizle);
 
 
-
 //kullanıcı bilgileri getir
 app.get("/kullanici/getir", FBAuth, gecerliKullaniciauthenticated);
 //profil fotografı yükle
 app.post("/uploadProfile", FBAuth, uploadProfile);
 //bakgprund Image change
 app.post("/uploadBackgorund", FBAuth, backgorundImageChange);
+
 //herhangi bir kullanıcı al  örnek: hibritCard/Batuhan
 app.get("/kullanici/:userHandle", kullaniciTumBilgiAl);
 
@@ -222,6 +217,7 @@ app.get("/crier/:screamid", getCrier)
 
 //Ön tanımlı linki bilgi getir varsa
 app.get("/kullanicip/:screamid", kullaniciTumOnTanimliUrlBilgiAl);
+
 
 //social İkons Without FBAUTH
 app.get("/socialWithout/:screamid", getSocialWithoutAuth)
@@ -254,67 +250,65 @@ app.delete("/kulsil/sil", FBAuth, deleteKullanici)
 app.delete("tanimliUrl/sil", urlsiSilKartta);
 
 //beğen buttonu
-app.get("/crier/:screamid/begen", FBAuth, FBAuth, likeScreen);
+app.get("/crier/:screamid/begen", FBAuth, likeScreen);
 //beğenmeme buttonu
 app.get("/crier/:screamid/begenme", FBAuth, unLikeScreen);
 //yorum at
 app.post("/crier/:screamid/postcomment", FBAuth, postCommnentOnScreen)
 
-
-
-
-
 exports.api = functions.https.onRequest(app);
+
 
 //firebase Trigger
 // get the notification when the user comment or like
-exports.createNotificationOnLike = functions.firestore.document("begen/{id}")
-    .onCreate((snapshot) => {
-        return db.doc(`/crier/${snapshot.data().screamid}`).get().then((doc) => {
-            if (doc.exists && doc.data().userHandle !== snapshot.data().userHandle) {
-                return db.doc(`/bildirim/${snapshot.id}`).set({
-                    createdAt: "12/03/2022",
-                    recipient: doc.data().userHandle,
-                    sender: snapshot.data().userHandle,
-                    type: "begen",
-                    read: false,
-                    screamid: doc.id
-                })
-            }
-        }).catch(err => {
-            console.error(err)
-        })
-    })
+// exports.createNotificationOnLike = functions.firestore.document("begen/{id}")
+//     .onCreate((snapshot) => {
+//         return db.doc(`/crier/${snapshot.data().screamid}`).get().then((doc) => {
+//             if (doc.exists && doc.data().userHandle !== snapshot.data().userHandle) {
+//                 return db.doc(`/bildirim/${snapshot.id}`).set({
+//                     createdAt: "12/03/2022",
+//                     recipient: doc.data().userHandle,
+//                     sender: snapshot.data().userHandle,
+//                     type: "begen",
+//                     read: false,
+//                     screamid: doc.id
+//                 })
+//             }
+//         }).catch(err => {
+//             console.error(err)
+//         })
+//     })
 
 //able to delete our like 
-exports.deleteNotificationOnUnLike = functions.firestore.document("begen/{id}").onDelete((snapshot) => {
-    db.doc(`/bildirim/${snapshot.id}`).delete().catch(err => {
-        console.error(err);
-        return;
-    })
-})
+// exports.deleteNotificationOnUnLike = functions.firestore.document("begen/{id}").onDelete((snapshot) => {
+//     db.doc(`/bildirim/${snapshot.id}`).delete().catch(err => {
+//         console.error(err);
+//         return;
+
+//     })
+// })
 
 
 //comments notifications
-exports.createNotificationOnComment = functions.firestore.document("comments/{id}").onCreate((snapshot) => {
+// exports.createNotificationOnComment = functions.firestore.document("comments/{id}").onCreate((snapshot) => {
 
-    return db.doc(`/crier/${snapshot.data().screamid}`).get().then((doc) => {
-        if (doc.exists && doc.data().userHandle !== snapshot.data().userHandle) {
-            return db.doc(`/bildirim/${snapshot.id}`).set({
-                createdAt: "12/03/2022",
-                recipient: doc.data().userHandle,
-                sender: snapshot.data().userHandle,
-                type: "comments",
-                read: false,
-                screamid: doc.id
-            })
-        }
-    }).catch(err => {
-        console.error(err)
-        return;
-    })
+//     return db.doc(`/crier/${snapshot.data().screamid}`).get().then((doc) => {
+//         if (doc.exists && doc.data().userHandle !== snapshot.data().userHandle) {
+//             return db.doc(`/bildirim/${snapshot.id}`).set({
+//                 createdAt: "12/03/2022",
+//                 recipient: doc.data().userHandle,
+//                 sender: snapshot.data().userHandle,
+//                 type: "comments",
+//                 read: false,
+//                 screamid: doc.id
+//             })
+//         }
+//     }).catch(err => {
+//         console.error(err)
+//         return;
+//     })
 
-})
+// })
 
 //change the images when the images changes
 
@@ -362,38 +356,38 @@ exports.onUserImageChange = functions.firestore.document('/userabd/{userId}')
 // });
 
 //delete crier
-exports.onScreamDelete = functions.firestore.document('/crier/{screamid}')
-    .onDelete((snapshot, context) => {
-        const screamId = context.params.screamid;
-        const batch = db.batch();
-        return db
-            .collection('comments')
-            .where('screamid', '==', screamid)
-            .get()
-            .then((data) => {
-                data.forEach((doc) => {
-                    batch.delete(db.doc(`/comments/${doc.id}`));
-                });
-                return db
-                    .collection('begen')
-                    .where('screamid', '==', screamid)
-                    .get();
+// exports.onScreamDelete = functions.firestore.document('/crier/{screamid}')
+//     .onDelete((snapshot, context) => {
+//         const screamId = context.params.screamid;
+//         const batch = db.batch();
+//         return db
+//             .collection('comments')
+//             .where('screamid', '==', screamid)
+//             .get()
+//             .then((data) => {
+//                 data.forEach((doc) => {
+//                     batch.delete(db.doc(`/comments/${doc.id}`));
+//                 });
+//                 return db
+//                     .collection('begen')
+//                     .where('screamid', '==', screamid)
+//                     .get();
 
-            })
-            .then((data) => {
-                data.forEach((doc) => {
-                    batch.delete(db.doc(`/begen/${doc.id}`));
-                });
-                return db
-                    .collection('bildirim')
-                    .where('screamid', '==', screamid)
-                    .get();
-            })
-            .then((data) => {
-                data.forEach((doc) => {
-                    batch.delete(db.doc(`/bildirim/${doc.id}`));
-                });
-                return batch.commit();
-            })
-            .catch((err) => console.error(err));
-    });
+//             })
+//             .then((data) => {
+//                 data.forEach((doc) => {
+//                     batch.delete(db.doc(`/begen/${doc.id}`));
+//                 });
+//                 return db
+//                     .collection('bildirim')
+//                     .where('screamid', '==', screamid)
+//                     .get();
+//             })
+//             .then((data) => {
+//                 data.forEach((doc) => {
+//                     batch.delete(db.doc(`/bildirim/${doc.id}`));
+//                 });
+//                 return batch.commit();
+//             })
+//             .catch((err) => console.error(err));
+//     });

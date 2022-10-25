@@ -124,7 +124,7 @@ exports.reducekulbilgi = (data) => {
     if (!isEmpty(data.company.trim())) {
         kuldtails.company = data.company
     }
-    //positionu 
+    //positionu
     if (!isEmpty(data.position.trim())) {
         kuldtails.position = data.position
     }
@@ -236,10 +236,12 @@ exports.reducekulgeceModu = (data) => {
 
 }
 
+
+// open close account
 exports.reducekulprofilGizle = (data) => {
     let kuldFaturatails = {}
 
-    //gece Modu
+
     if (!isEmpty(data.profilKapa.trim())) {
         kuldFaturatails.profilKapa = data.profilKapa
     }

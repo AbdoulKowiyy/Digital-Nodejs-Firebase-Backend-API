@@ -6,7 +6,9 @@ module.exports = (req, res, next) => {
         idToken = req.headers.authorization.split("Bearer ")[1];
     } else {
         console.error("Token Bulunamadı...!")
+        
         return res.status(403).json({ Hata: "İzin verilmedi" })
+
     }
 
 

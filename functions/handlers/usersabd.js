@@ -35,6 +35,7 @@ exports.kaydolClass = (req, res) => {
                 return res.status(400).json({ userHandle: "bu kullanıcı zaten mevcut" });
             } else {
                 return firebase.auth().createUserWithEmailAndPassword(newkisi.email, newkisi.password);
+
             }
         }).then((data) => {
 
@@ -86,7 +87,7 @@ exports.kaydolClass = (req, res) => {
     // })
 }
 
-
+//delete user
 exports.deleteKullanici = (req, res) => {
 
     const crierDocument = db.doc(`/userabd/${req.user.userHandle}`);
@@ -184,8 +185,6 @@ exports.kaydolClassOnUrlTanimla = (req, res) => {
 
             userId = data.user.uid;
             return data.user.getIdToken();
-
-
         })
         .then((tokenimiz) => {
             taken = tokenimiz
@@ -220,28 +219,6 @@ exports.kaydolClassOnUrlTanimla = (req, res) => {
         })
 
 
-    // db.doc(`/kullanicip/${newkisi.onurlLinkiId}`).get().then(doc => {
-
-
-    //     if (!doc.exists) {
-    //         return res.status(404).json({ Hata: "Bu linki  bulunamadı" })
-
-    //     }
-    //     console.log("document: ", doc)
-    //     return doc.ref.update({ userId: userCredentials.userId });
-
-    // })
-
-
-
-
-    //TODO Validate Data
-    // firebase.auth().createUserWithEmailAndPassword(newkisi.email, newkisi.password).then((data) => {
-    //     return res.status(201).json({ message: `Bu  ${data.user.uid} ait kullanıcı başarıyla giriş yapıldı.!` })
-    // }).catch((err) => {
-    //     console.error(err);
-    //     return res.status(500).json({ error: err.code })
-    // })
 }
 
 
@@ -290,8 +267,6 @@ exports.parolaChange = (req, res) => {
     }
 
     const { valid, hatakisigiris } = validateResetData(kisigiris);
-
-
     if (!valid) {
         return res.status(400).json({ hatakisigiris });
     }
@@ -308,78 +283,9 @@ exports.parolaChange = (req, res) => {
 }
 
 
-
-
-
-// //aynısı yap
-// const newkisi = {
-//     email: req.body.email,
-//     nameSurname: req.body.nameSurname,
-//     password: req.body.password,
-//     confirmPassword: req.body.confirmPassword,
-//     userHandle: req.body.userHandle,
-//     onurlLinkiId: req.body.onurlLinkiId
-// }
-
-
-// const { valid, hatalar } = validateSignUpData(newkisi);
-
-// if (!valid) {
-//     return res.status(400).json({ hatalar });
-// }
-// const noImg = "no-image.png";
-
-
-
-// //veri control ediliyor burada, validation of data.
-// let taken, userId;
-// db.doc(`/userabd/${newkisi.userHandle}`).get().then(doc => {
-//         if (doc.exists) {
-//             return res.status(400).json({ userHandle: "bu kullanıcı zaten mevcut" });
-//         } else {
-//             return firebase.auth().createUserWithEmailAndPassword(newkisi.email, newkisi.password);
-//         }
-//     }).then((data) => {
-
-//         userId = data.user.uid;
-//         return data.user.getIdToken();
-
-
-//     })
-//     .then((tokenimiz) => {
-//         taken = tokenimiz
-
-//         const userCredentials = {
-//             userHandle: newkisi.userHandle,
-//             email: newkisi.email,
-//             nameSurname: newkisi.nameSurname,
-//             createdAt: new Date().toISOString(),
-//             profileUrl: `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${noImg}?alt=media`,
-//             userId,
-//             onurlLinkiId: newkisi.onurlLinkiId
-//         }
-//         return (
-//             db.doc(`/userabd/${newkisi.userHandle}`).set(userCredentials),
-//             db.doc(`/homepageLink/${newkisi.onurlLinkiId}`).set(userCredentials)
-//         )
-
-//     }).then(() => {
-//         res.status(201).json({ taken });
-
-
-//     }).catch((err) => {
-//         console.error(err);
-//         if (err.code == "auth/email-already-in-use") {
-
-//             return res.status(400).json({ hata: "Bu email zaten kayıltlı...!" })
-//         } else {
-//             return res.status(500).json({ GenelHata: "Backend de yanlış bir şeyler gitti, Lütfen tekrar deneyiniz!!" })
-//         }
-
-//     })
-
 //ön tanımlı Linki yoksa giriş yap
 exports.giriyapClassUrlTanimla = (req, res) => {
+
 
     const kisigiris = {
         email: req.body.email,
@@ -392,17 +298,20 @@ exports.giriyapClassUrlTanimla = (req, res) => {
 
 
 
+
     const { valid, hatakisigiris } = validateLoginData(kisigiris);
 
     if (!valid) {
         return res.status(400).json({ hatakisigiris });
     }
+
+
+
+
     let taken, userId = "jskjsdjkf";
     firebase.auth().signInWithEmailAndPassword(kisigiris.email, kisigiris.password).then((data) => {
         return data.user.getIdToken()
     }).then((tokenimiz) => {
-        res.status(201).json({ TokenGiris: tokenimiz })
-    }).then(() => {
 
         const userCredentials = {
             userId,
@@ -415,21 +324,31 @@ exports.giriyapClassUrlTanimla = (req, res) => {
             onurlLinkiId: kisigiris.onurlLinkiId
         }
 
-        db.doc(`/userabd/${kisigiris.userkullanici}`).update(userCredentials2),
+        db.doc(`/userabd/${kisigiris.userkullanici}`).update(userCredentials2).then(doc => {
+
             db.doc(`/homepageLink/${kisigiris.onurlLinkiId}`).set(userCredentials)
 
 
-    }).then(() => {
+            console.log(db.collection("userabd").where("userHandle", "==", kisigiris.userkullanici).get())
 
-        let crierData = {}
-        db.doc(`/userabd/${kisigiris.userkullanici}`).get().then(doc => {
-            if (!doc.exists) {
-                return res.status(404).json({ Mesaj: "bu kişi  not found!!" })
-            }
-            crierData = doc.data()
-            crierData.screamid = doc.id
-            return db.doc(`/homepageLink/${kisigiris.onurlLinkiId}`).update(crierData)
+        }).then((doc) => {
+
+            let crierData
+            const infoToUpdate = db.doc(`/userabd/${kisigiris.userkullanici}`)
+
+            infoToUpdate.get().then((doc) => {
+
+                crierData = doc.data()
+
+            }).then((data) => {
+                db.doc(`/homepageLink/${kisigiris.onurlLinkiId}`).update(crierData)
+
+            })
+
+        }).catch((err) => {
+            console.log("hata var:", err)
         })
+        return res.status(201).json({ TokenGiris: tokenimiz })
     }).catch(err => {
         console.error(err)
             //auth/wrong-password
@@ -442,146 +361,6 @@ exports.giriyapClassUrlTanimla = (req, res) => {
             return res.status(500).json({ err: err.code })
         }
     })
-
-    // .then(() => {
-
-    //     const userCredentials = {
-    //         userId,
-    //         email: kisigiris.email,
-    //         profileUrl: `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${noImg}?alt=media`,
-    //         onurlLinkiId: kisigiris.onurlLinkiId,
-    //         userHandle: kisigiris.userkullanici
-    //     }
-    //     const userCredentials2 = {
-    //         onurlLinkiId: kisigiris.onurlLinkiId
-    //     }
-    //     return (
-    //         db.doc(`/userabd/${kisigiris.userkullanici}`).update(userCredentials2),
-    //         db.doc(`/homepageLink/${kisigiris.onurlLinkiId}`).set(userCredentials)
-    //     )
-    // }).
-
-
-
-
-
-    // db.doc(`/userabd/${kisigiris.userkullanici}`).get().then((doc) => {
-    //     if (doc.exists) {
-
-    //         return firebase.auth().signInWithEmailAndPassword(kisigiris.email, kisigiris.password)
-    //     } else {
-
-    //         return res.status(400).json({ userHandle: "kullanici adını yanlış" });
-    //     }
-    // }).then((data) => {
-    //     userId = data.user.uid;
-
-    //     return data.user.getIdToken()
-    // }).then((tokenimiz) => {
-    //    return res.status(201).json({ tokenimiz })
-    // }).then(() => {
-
-
-    //     const userCredentials = {
-    //         userId,
-    //         email: kisigiris.email,
-    //         profileUrl: `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${noImg}?alt=media`,
-    //         onurlLinkiId: kisigiris.onurlLinkiId,
-    //         userHandle: kisigiris.userkullanici
-    //     }
-    //     const userCredentials2 = {
-    //         onurlLinkiId: kisigiris.onurlLinkiId
-    //     }
-
-    //     return (
-    //         db.doc(`/userabd/${kisigiris.userkullanici}`).update(userCredentials2),
-    //         db.doc(`/homepageLink/${kisigiris.onurlLinkiId}`).set(userCredentials)
-    //     )
-    // }).then(() => {
-    //     let crierData = {}
-    //     db.doc(`/userabd/${kisigiris.userkullanici}`).get().then(doc => {
-    //         if (!doc.exists) {
-    //             return res.status(404).json({ Mesaj: "bu kişi  not found!!" })
-    //         }
-    //         crierData = doc.data()
-    //         crierData.screamid = doc.id
-    //         return db.doc(`/homepageLink/${kisigiris.onurlLinkiId}`).update(crierData)
-    //     }).catch(err => {
-    //         console.error(err)
-    //         return res.status(500).json({ Mesaj: err.code })
-
-
-    //     })
-    // }).catch(err => {
-    //     console.error(err)
-    //     if (err.code == "auth/wrong-password") {
-    //         return res.status(400).json({ hata: "email yada parola  yanlış" });
-    //     } else if (err.code == "auth/user-not-found") {
-    //         return res.status(400).json({ hata: "Lütfen yanlış bilgileri girildi tekrar deneyiniz!!" })
-    //     } else {
-    //         return res.status(500).json({ err: err.code })
-    //     }
-    // })
-
-
-    // let taken, userId;
-
-    // firebase.auth().signInWithEmailAndPassword(kisigiris.email, kisigiris.password).then((data) => {
-
-    //     return data.user.getIdToken();
-
-    // }).then((tokenimiz) => {
-    //     return res.status(201).json({ TokenGiris: tokenimiz })
-    // }).then(() => {
-
-
-    //     const userCredentials = {
-    //         userId,
-    //         email: kisigiris.email,
-    //         profileUrl: `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${noImg}?alt=media`,
-    //         onurlLinkiId: kisigiris.onurlLinkiId,
-    //         userHandle: kisigiris.userkullanici
-    //     }
-    //     const userCredentials2 = {
-    //         onurlLinkiId: kisigiris.onurlLinkiId
-    //     }
-
-    //     return (
-    //         db.doc(`/userabd/${kisigiris.userkullanici}`).update(userCredentials2),
-    //         db.doc(`/homepageLink/${kisigiris.onurlLinkiId}`).set(userCredentials)
-    //     )
-    // }).then(() => {
-    //     let crierData = {}
-    //     db.doc(`/userabd/${kisigiris.userkullanici}`).get().then(doc => {
-    //         if (!doc.exists) {
-    //             return res.status(404).json({ Mesaj: "bu kişi  not found!!" })
-    //         }
-    //         crierData = doc.data()
-    //         crierData.screamid = doc.id
-    //         return db.doc(`/homepageLink/${kisigiris.onurlLinkiId}`).update(crierData)
-    //     }).then(data => {
-    //         return res.json(crierData)
-    //     }).catch(err => {
-    //         console.error(err)
-    //         return res.status(500).json({ Mesaj: err.code })
-
-    //         // db.collection("homepageLink")
-    //         // .where("onurlLinkiId", "==", kisigiris.onurlLinkiId).update(crierData)
-
-    //     })
-    // }).catch(err => {
-    //     console.error(err)
-    //         //auth/wrong-password
-    //         //auth/user-not-user
-    //     if (err.code == "auth/wrong-password") {
-    //         return res.status(400).json({ hata: "email yada parola  yanlış" });
-    //     } else if (err.code == "auth/user-not-found") {
-    //         return res.status(400).json({ hata: "Lütfen yanlış bilgileri girildi tekrar deneyiniz!!" })
-    //     } else {
-    //         return res.status(500).json({ err: err.code })
-    //     }
-
-
 }
 
 
@@ -623,21 +402,22 @@ exports.postTanimUret = (req, res) => {
         userId: ""
     }
 
-    db.collection("homepageLink").add(createIkon).then((data) => {
 
+    db.collection("homepageLink").add(createIkon).then((data) => {
         if (req.user.userHandle === "omur") {
             const resScream = createIkon
             resScream.screamid = data.id
             res.json({ resScream });
         }
-
     }).catch((err) => {
-        res.status(500).json({ error: "something went wrong!!" });
 
+        res.status(500).json({ error: "something went wrong!!" });
         console.error(err)
     })
 
 }
+
+
 
 
 //banka ikon ekle
@@ -750,7 +530,9 @@ exports.whatsapUrlEkle = (req, res) => {
         //  return doc.ref.update({ urlVar: true });
 
     }).then(() => {
+
         return db.collection("linkUrlAll").add(newComments);
+
     })
 
     .then(() => {
@@ -956,6 +738,43 @@ exports.bankaUrlEkle = (req, res) => {
 //iletişim Url Linki ekle
 
 exports.iletisimUrlEkle = (req, res) => {
+    if (req.body.UrlLinki.trim() === "") {
+
+        return res.status(400).json({ Hata: "Url alanı boş geçilemez!!" });
+
+    }
+
+    const newComments = {
+        UrlLinki: req.body.UrlLinki,
+        userHandle: req.user.userHandle,
+        urlId: req.params.urlId,
+    }
+
+    db.doc(`/contactIkons/${req.params.urlId}`).get().then(doc => {
+        if (!doc.exists) {
+
+            return res.status(404).json({ Hata: "Bu ikon bulunamadı" })
+
+        }
+
+        return doc.ref.update({ urlVar: true });
+
+    }).then(() => {
+        return db.collection("linkUrlAll").add(newComments);
+    })
+
+    .then(() => {
+            res.json(newComments)
+        })
+        .catch(err => {
+            console.log(err)
+            return res.status(500).json({ Hata: err.code })
+        })
+
+}
+
+//only contact Number
+exports.contactOnlyNumber = (req, res) => {
 
     if (req.body.UrlLinki.trim() === "") {
         return res.status(400).json({ Hata: "Url alanı boş geçilemez!!" });
@@ -989,49 +808,16 @@ exports.iletisimUrlEkle = (req, res) => {
 
 }
 
-//only contact Number
-exports.contactOnlyNumber = (req, res) => {
 
-    if (req.body.UrlLinki.trim() === "") {
-        return res.status(400).json({ Hata: "Url alanı boş geçilemez!!" });
-    }
-
-    const newComments = {
-        UrlLinki: `+90 ${req.body.UrlLinki}`,
-        userHandle: req.user.userHandle,
-        urlId: req.params.urlId,
-    }
-
-    db.doc(`/contactIkons/${req.params.urlId}`).get().then(doc => {
-
-        if (!doc.exists) {
-            return res.status(404).json({ Hata: "Bu ikon bulunamadı" })
-        }
-
-        return doc.ref.update({ urlVar: true });
-
-    }).then(() => {
-        return db.collection("linkUrlAll").add(newComments);
-    })
-
-    .then(() => {
-            res.json(newComments)
-        })
-        .catch(err => {
-            console.log(err)
-            return res.status(500).json({ Hata: err.code })
-        })
-
-}
 
 
 //kullanıcı bilgileri yükle
 exports.kullaniciBilgi = (req, res) => {
-
     let kulbilgi = reducekulbilgi(req.body);
-
     db.doc(`/userabd/${req.user.userHandle}`).update(kulbilgi).then(() => {
+
         return res.json({ Mesaj: "Kullanıcı bilgileri doğru girilmiştir!!" })
+
     }).catch((err) => {
         console.error(err)
         return res.status(500).json({ err: err.code })
@@ -1045,8 +831,6 @@ exports.kullaniciBilgi = (req, res) => {
             return res.status(500).json({ err: err.code })
         })
     }
-
-
 
 }
 
